@@ -177,27 +177,30 @@ namespace MatchMicroService.Controllers
                 var identity = HttpContext.User.Identity as ClaimsIdentity;
                 int userId = _tokenServices.GetUserId(identity);
 
-                MatchResponse matchUpdate = await _matchServices.GetByUsersIds(userId, request.User2);
-
-                var response = await _matchServices.UpdateMatch(new MatchRequestUpdate
+                if(userId.Equals(request.User1) || userId.Equals(request.User2))
                 {
-                    User1 = matchUpdate.User1,
-                    User2 = matchUpdate.User2,
-                    View1 = matchUpdate.User1 == userId? true: matchUpdate.View1,
-                    View2 = matchUpdate.User2 == userId ? true : matchUpdate.View2,
-                });
+                    MatchResponse matchUpdate = await _matchServices.GetByUsersIds(request.User1, request.User2);
 
-                //var response = _matchServices.UpdateMatch(matchUpdate);
-                return new JsonResult(new { Response = response }) { StatusCode = 200 };
+                    var response = await _matchServices.UpdateMatch(new MatchRequestUpdate
+                    {
+                        User1 = matchUpdate.User1,
+                        User2 = matchUpdate.User2,
+                        View1 = matchUpdate.User1 == userId ? true : matchUpdate.View1,
+                        View2 = matchUpdate.User2 == userId ? true : matchUpdate.View2
+                    });
+
+                    return new JsonResult(new { Response = response }) { StatusCode = 200 };
+                }
+                else
+                {
+                    return new JsonResult(new { Response = "No tiene autorización." }) { StatusCode = 401 };
+                }
             }
             catch (Exception ex)
             {
                 return new JsonResult(new { ex.Message }) { StatusCode = 500 };
             }
-            
-         
         }
-
     }
 }
 

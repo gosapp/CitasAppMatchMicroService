@@ -54,9 +54,9 @@ namespace Infrastructure.Queries
         {
 
             Match match = await _context.Matches
-                                        .Where(x => x.User1Id == userId1 || x.User2Id == userId1)
-                                        .Where(x => x.User1Id == userId2 || x.User2Id == userId2)
+                                        .Where(x => (x.User1Id == userId1 && x.User2Id == userId2) || (x.User1Id == userId2 && x.User2Id == userId1))
                                         .FirstOrDefaultAsync();
+
             return match;
         }
     }
