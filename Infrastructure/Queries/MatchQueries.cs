@@ -59,5 +59,54 @@ namespace Infrastructure.Queries
 
             return match;
         }
+
+        public async Task<IEnumerable<RankResponse>> ListMatchUsers()
+        {
+            try
+            {
+                var ranking1 = await _context.Matches
+                                    .GroupBy(x => x.User1Id)
+                                    .Select(g => new RankResponse
+                                    {
+                                        UserId = g.Key,
+                                        MatchQty = g.Count()
+                                    })
+                                    .OrderByDescending(x => x.MatchQty)
+                                    .Take(10)
+                                    .ToListAsync();
+
+                var ranking2 = await _context.Matches
+                                        .GroupBy(x => x.User2Id)
+                                        .Select(g => new RankResponse
+                                        {
+                                            UserId = g.Key,
+                                            MatchQty = g.Count()
+                                        })
+                                        .OrderByDescending(x => x.MatchQty)
+                                        .Take(10)
+                                        .ToListAsync();
+
+                ranking1.AddRange(ranking2);
+                ranking1.GroupBy(x => x.UserId).Select(g => new RankResponse
+                {
+                    UserId = g.Key,
+                    MatchQty = g.Count()
+                })
+                .OrderByDescending(x => x.MatchQty)
+                .Take(10);
+
+                return ranking1;
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+        } 
     }
 }
