@@ -168,6 +168,31 @@ namespace MatchMicroService.Controllers
             }
         }
 
+        [HttpGet("rank")]
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public IActionResult GetRanking()
+        {
+            try
+            {
+                //var identity = HttpContext.User.Identity as ClaimsIdentity;
+                //int userId = _tokenServices.GetUserId(identity);
+
+                var rankList = _matchServices.GetTopMatchUser();
+                if(rankList != null)
+                {
+                    return new JsonResult(new { Message = "Se devolvio la informacion correctamente.", Response = rankList }) { StatusCode = 200 };
+                }
+                else
+                {
+                    return new JsonResult(new { Message = "No se pudo devolver la informacion solicitada." }) { StatusCode = 500 };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { ex.Message }) { StatusCode = 500 };
+            }
+        }
+
         [HttpPut]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> UpdateMatch(MatchRequest request)
@@ -201,6 +226,7 @@ namespace MatchMicroService.Controllers
                 return new JsonResult(new { ex.Message }) { StatusCode = 500 };
             }
         }
+
     }
 }
 
