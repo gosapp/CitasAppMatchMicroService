@@ -3,6 +3,7 @@ using Application.Models;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.X86;
 
 namespace Infrastructure.Queries
 {
@@ -59,5 +60,70 @@ namespace Infrastructure.Queries
 
             return match;
         }
+
+        public IEnumerable<RankResponse> ListTopMatchUsers()
+        {
+            try
+            { 
+                List<RankResponse> rankList = new List<RankResponse>();
+
+                var ranking1 = _context.Matches
+                                    .GroupBy(x => x.User1Id)
+                                    .Select(g => new RankResponse
+                                    {
+                                        UserId = g.Key,
+                                        MatchQty = g.Count()
+                                    })
+                                    .OrderByDescending(x => x.MatchQty)
+                                    .Take(10)
+                                    .ToList();
+
+                var ranking2 = _context.Matches
+                                        .GroupBy(x => x.User2Id)
+                                        .Select(g => new RankResponse
+                                        {
+                                            UserId = g.Key,
+                                            MatchQty = g.Count()
+                                        })
+                                        .OrderByDescending(x => x.MatchQty)
+                                        .Take(10)
+                                        .ToList();
+
+                rankList.AddRange(ranking1);
+
+                foreach(var e in ranking2)
+                {
+                    var x = rankList.FirstOrDefault(x => x.UserId == e.UserId);
+                    if (x != null)
+                    {
+                        var aux = new RankResponse
+                        {
+                            UserId = e.UserId,
+                            MatchQty = e.MatchQty + x.MatchQty
+                        };
+                        rankList.Remove(x);
+                        rankList.Add(aux);
+                    }
+                    else
+                    {
+                        rankList.Add(e);
+                    }
+                }
+
+                var response = rankList.OrderByDescending(x => x.MatchQty).Take(10);
+
+                return response;
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+        } 
     }
 }

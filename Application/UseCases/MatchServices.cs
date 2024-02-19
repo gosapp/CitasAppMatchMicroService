@@ -171,7 +171,27 @@ namespace Application.UseCases
             {
                 return false;
             }
-            
+        }
+
+        public IEnumerable<RankResponse> GetTopMatchUser()
+        {
+            try
+            {
+                var topUsers = _queries.ListTopMatchUsers();
+
+                if(topUsers != null && topUsers.Count() >= 10)
+                {
+                    return topUsers;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }
