@@ -61,13 +61,13 @@ namespace Infrastructure.Queries
             return match;
         }
 
-        public IEnumerable<RankResponse> ListTopMatchUsers()
+        public async Task<IEnumerable<RankResponse>> ListTopMatchUsers()
         {
             try
             { 
                 List<RankResponse> rankList = new List<RankResponse>();
 
-                var ranking1 = _context.Matches
+                var ranking1 = await _context.Matches
                                     .GroupBy(x => x.User1Id)
                                     .Select(g => new RankResponse
                                     {
@@ -76,9 +76,9 @@ namespace Infrastructure.Queries
                                     })
                                     .OrderByDescending(x => x.MatchQty)
                                     .Take(10)
-                                    .ToList();
+                                    .ToListAsync();
 
-                var ranking2 = _context.Matches
+                var ranking2 = await _context.Matches
                                         .GroupBy(x => x.User2Id)
                                         .Select(g => new RankResponse
                                         {
@@ -87,7 +87,7 @@ namespace Infrastructure.Queries
                                         })
                                         .OrderByDescending(x => x.MatchQty)
                                         .Take(10)
-                                        .ToList();
+                                        .ToListAsync();
 
                 rankList.AddRange(ranking1);
 

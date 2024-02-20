@@ -169,15 +169,15 @@ namespace MatchMicroService.Controllers
         }
 
         [HttpGet("rank")]
-        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult GetRanking()
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetRanking()
         {
             try
             {
-                //var identity = HttpContext.User.Identity as ClaimsIdentity;
-                //int userId = _tokenServices.GetUserId(identity);
+                var identity = HttpContext.User.Identity as ClaimsIdentity;
+                int userId = _tokenServices.GetUserId(identity);
 
-                var rankList = _matchServices.GetTopMatchUser();
+                var rankList = await _matchServices.GetTopMatchUser();
                 if(rankList != null)
                 {
                     return new JsonResult(new { Message = "Se devolvio la informacion correctamente.", Response = rankList }) { StatusCode = 200 };

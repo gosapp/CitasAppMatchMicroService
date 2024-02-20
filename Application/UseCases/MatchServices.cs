@@ -173,11 +173,11 @@ namespace Application.UseCases
             }
         }
 
-        public IEnumerable<RankResponse> GetTopMatchUser()
+        public async Task<IEnumerable<RankResponse>> GetTopMatchUser()
         {
             try
             {
-                var topUsers = _queries.ListTopMatchUsers();
+                var topUsers = await _queries.ListTopMatchUsers();
 
                 if(topUsers != null && topUsers.Count() >= 10)
                 {

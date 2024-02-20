@@ -11,6 +11,6 @@ namespace Application.Interfaces
         Task<Match> GetByUsersIds(int userId1, int userId2);
         Task<IList<MatchResponse>> GetAllMatch();
         Task<bool> Exist(int userId1, int userId2);
-        IEnumerable<RankResponse> ListTopMatchUsers();
+        Task<IEnumerable<RankResponse>> ListTopMatchUsers();
     }
 }
