@@ -13,7 +13,7 @@ namespace Application.Interfaces
         Task<MatchResponse> GetByUsersIds(int userId1, int userId2);
         Task<IList<MatchResponse>> GetAll();
         Task<bool> ExistMatch(int userId1, int userId2);
-        Task<IEnumerable<RankResponse>> GetTopMatchUser();
+        Task<IEnumerable<RankResponse2>> GetTopMatchUser();
 
     }
 }
