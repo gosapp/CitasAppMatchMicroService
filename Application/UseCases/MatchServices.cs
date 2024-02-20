@@ -10,12 +10,14 @@ namespace Application.UseCases
         private readonly IMatchCommands _commands;
         private readonly IMatchQueries _queries;
         private readonly IChatApiServices _chatApiServices;
+        private readonly IUserApiServices _userApiServices;
 
-        public MatchServices(IMatchCommands commands, IMatchQueries queries, IChatApiServices chatApiServices)
+        public MatchServices(IMatchCommands commands, IMatchQueries queries, IChatApiServices chatApiServices, IUserApiServices userApiServices)
         {
             _commands = commands;
             _queries = queries;
             _chatApiServices = chatApiServices;
+            _userApiServices = userApiServices;
         }
 
         public async Task<MatchResponse2> CreateMatch(MatchRequest request)
@@ -173,15 +175,35 @@ namespace Application.UseCases
             }
         }
 
-        public async Task<IEnumerable<RankResponse>> GetTopMatchUser()
+        public async Task<IEnumerable<RankResponse2>> GetTopMatchUser()
         {
             try
             {
                 var topUsers = await _queries.ListTopMatchUsers();
+                List<int> listTopUsers = new List<int>();
+                List<RankResponse2> rankResponse = new List<RankResponse2>();
 
-                if(topUsers != null && topUsers.Count() >= 10)
+                foreach (var user in topUsers)
                 {
-                    return topUsers;
+                    listTopUsers.Add(user.UserId);
+                }
+
+                if(topUsers != null)
+                {
+                    var topUsersInfo = await _userApiServices.GetUsers(listTopUsers);
+                    foreach (var user in topUsers)
+                    {
+                        var userInfo = new RankResponse2
+                        {
+                            UserId = user.UserId,
+                            MatchQty = user.MatchQty,
+                            UserResponse = topUsersInfo.FirstOrDefault(x => x.UserId == user.UserId)
+                        };
+
+                        rankResponse.Add(userInfo);
+                    }
+
+                    return rankResponse;
                 }
                 else
                 {
